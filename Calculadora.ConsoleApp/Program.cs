@@ -22,7 +22,7 @@ namespace Calculadora.ConsoleApp
             string opcao;
             do
             {
-                Console.WriteLine("Calculadora Top 1.3");
+                Console.WriteLine("Calculadora Top 1.4");
 
                 Console.WriteLine("Digite 1 para somar");
 
