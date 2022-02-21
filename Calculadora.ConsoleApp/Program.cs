@@ -35,7 +35,7 @@
 using System;
 
 namespace Calculadora.ConsoleApp
-{
+{    
     public class Program
     {
         static void Main(string[] args)
@@ -48,145 +48,221 @@ namespace Calculadora.ConsoleApp
 
             while (true)
             {
-                //Apresenta o Menu 
-                Console.WriteLine("Calculadora Top 1.3");
-
-                Console.WriteLine("Digite 1 para somar");
-
-                Console.WriteLine("Digite 2 para subtrair");
-
-                Console.WriteLine("Digite 3 para multiplicar");
-
-                Console.WriteLine("Digite 4 para dividir");
-
-                Console.WriteLine("Digite 5 para visualizar operações");
-
-                Console.WriteLine("Digite s para sair");
+                ApresentarMenuOpcoes();
 
                 opcao = Console.ReadLine();
 
-                //verifica se a opção é valida
-                if (opcao != "1" && opcao != "2" && opcao != "3"
-                    && opcao != "4" && opcao != "5" && opcao != "s")
+                if (EhOpcaoInvalida(opcao))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Opção inválida: tente novamente");
-                    Console.ResetColor();
-                    Console.ReadLine();
+                    ApresentarMensagem("Opção inválida: tente novamente", ConsoleColor.Red);
+
                     Console.Clear();
+
                     continue;
                 }
 
-                if (opcao == "5")
+                if (EhVisualizarHistorico(opcao))
                 {
-                    if (contadorOperacoes == 0)
-                    {
-                        Console.WriteLine("Nenhum operação realizada :-)");
-                    }
-                    else
-                    {
-                        for (int i = 0; i < historicoOperacoes.Length; i++)
-                        {
-                            if (historicoOperacoes[i] != null)
-                            {
-                                if (historicoOperacoes[i].Contains("+"))
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Green;
-                                }
-                                else if (historicoOperacoes[i].Contains("-"))
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                }
+                    VisualizarHistorico(historicoOperacoes, contadorOperacoes);
 
-                                Console.WriteLine(historicoOperacoes[i]);
-                            }
-                        }
-                    }
-
-                    Console.ResetColor();
-                    Console.ReadLine();
                     Console.Clear();
+
                     continue;
                 }
+                
+                if (opcao == "s") //verifica se é pra sair
+                    break;                
 
-                //verifica se é pra sair
-                if (opcao == "s")
-                    break;
+                historicoOperacoes[contadorOperacoes] = ExecutarCalculo(opcao);
 
-                //input dos dados do primeiro número
-                Console.Write("Digite o primeiro número: ");
-
-                string strPrimeiroNumero = Console.ReadLine();
-
-                decimal primeiroNumero = Convert.ToDecimal(strPrimeiroNumero);
-
-                //input dos dados do segundo número
-
-                decimal segundoNumero;
-
-                do
-                {
-                    Console.Write("Digite o segundo número: ");
-
-                    string strSegundoNumero = Console.ReadLine();
-
-                    segundoNumero = Convert.ToDecimal(strSegundoNumero);
-
-                    if (opcao == "1" || opcao == "2" || opcao == "3") // != 4                   
-                        break;
-
-                    if (segundoNumero != 0)
-                        break;
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Opção inválida: divisão por zero");
-                        Console.ResetColor();
-                        Console.ReadLine();
-
-                        continue;
-                    }
-
-                } while (true);
-
-                //execução do calculo
-                decimal resultadoOperacao = 0;
-                string operadorSelecionado = "";
-                if (opcao == "1")
-                {
-                    operadorSelecionado = "+";
-                    resultadoOperacao = primeiroNumero + segundoNumero;
-                }
-                else if (opcao == "2")
-                {
-                    operadorSelecionado = "-";
-                    resultadoOperacao = primeiroNumero - segundoNumero;
-                }
-                else if (opcao == "3")
-                {
-                    operadorSelecionado = "*";
-                    resultadoOperacao = primeiroNumero * segundoNumero;
-                }
-                else if (opcao == "4")
-                {
-                    operadorSelecionado = "/";
-                    resultadoOperacao = primeiroNumero / segundoNumero;
-                }
-
-                historicoOperacoes[contadorOperacoes] = primeiroNumero + " " + operadorSelecionado + " " +
-                    segundoNumero + " = " + Math.Round(resultadoOperacao, 2);
-
-                contadorOperacoes++;
-
-                //apresentação do resultado final
-                Console.WriteLine("Resultado da Operação: " + Math.Round(resultadoOperacao, 2));
+                contadorOperacoes++;                
 
                 Console.ReadLine();
 
                 Console.Clear();
             }
+        }
 
+
+
+        #region métodos
+
+        static string ExecutarCalculo(string opcao)
+        {
+            decimal primeiroNumero = ObterPrimeiroNumero();
+
+            decimal segundoNumero = ObterSegundoNumero(opcao);
+
+            decimal resultadoOperacao = Calcular(opcao, primeiroNumero, segundoNumero);
+
+            Console.WriteLine("Resultado da Operação: " + Math.Round(resultadoOperacao, 2));
+
+            string descricaoCalculo = primeiroNumero + " " + ObterSimboloOperacao(opcao) + " " +
+                    segundoNumero + " = " + Math.Round(resultadoOperacao, 2);
+
+            return descricaoCalculo;
+        }
+
+        //método
+        static void VisualizarHistorico(string[] historicoOperacoes, int contadorOperacoes)
+        {
+            if (contadorOperacoes > 0)
+            {
+                ApresentarOperacoesRealizadas(historicoOperacoes);
+                ApresentarMensagem(contadorOperacoes + " operações realizadas", ConsoleColor.Green);
+            }
+            else
+                ApresentarMensagem("Nenhum operação realizada :-)", ConsoleColor.DarkYellow);
 
         }
+
+        //método
+        static void ApresentarOperacoesRealizadas(string[] historicoOperacoes)
+        {
+            for (int i = 0; i < historicoOperacoes.Length; i++)
+            {
+                if (historicoOperacoes[i] != null)
+                {
+                    if (historicoOperacoes[i].Contains("+"))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
+                    else if (historicoOperacoes[i].Contains("-"))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+
+                    Console.WriteLine(historicoOperacoes[i]);
+                }
+            }
+        }
+
+        //método
+        static bool EhVisualizarHistorico(string opcao)
+        {
+            return opcao == "5";
+        }
+
+        //método
+        static bool EhOpcaoInvalida(string opcao)
+        {
+            return 
+                opcao != "1" &&
+                opcao != "2" &&
+                opcao != "3" &&
+                opcao != "4" &&
+                opcao != "5" &&
+                opcao != "s";
+        }
+
+        //método
+        static void ApresentarMenuOpcoes()
+        {
+            Console.WriteLine("Calculadora Top 1.5");
+
+            Console.WriteLine("Digite 1 para somar");
+
+            Console.WriteLine("Digite 2 para subtrair");
+
+            Console.WriteLine("Digite 3 para multiplicar");
+
+            Console.WriteLine("Digite 4 para dividir");
+
+            Console.WriteLine("Digite 5 para visualizar operações");
+
+            Console.WriteLine("Digite s para sair");
+        }
+
+        //funções
+        static decimal ObterSegundoNumero(string opcao)
+        {
+            decimal segundoNumero;
+
+            do
+            {
+                Console.Write("Digite o segundo número: ");
+
+                string strSegundoNumero = Console.ReadLine();
+
+                segundoNumero = Convert.ToDecimal(strSegundoNumero);
+
+                if (opcao == "1" || opcao == "2" || opcao == "3") // != 4                   
+                    break;
+
+                if (segundoNumero != 0)
+                    break;
+                else
+                {
+                    ApresentarMensagem("Opção inválida: divisão por zero", ConsoleColor.Red);
+
+                    continue;
+                }
+
+            } while (true);
+            return segundoNumero;
+        }
+
+        //funções
+        static decimal ObterPrimeiroNumero()
+        {
+            Console.Write("Digite o primeiro número: ");
+
+            string strPrimeiroNumero = Console.ReadLine();
+
+            decimal primeiroNumero = Convert.ToDecimal(strPrimeiroNumero);
+
+            return primeiroNumero;
+        }
+
+        //método
+        static string ObterSimboloOperacao(string opcao)
+        {
+            string operadorSelecionado = "";
+
+            if (opcao == "1")
+                operadorSelecionado = "+";
+
+            else if (opcao == "2")
+                operadorSelecionado = "-";
+
+            else if (opcao == "3")
+                operadorSelecionado = "*";
+
+            else if (opcao == "4")
+                operadorSelecionado = "/";
+
+            return operadorSelecionado;
+        }
+
+        //método
+        static decimal Calcular(string opcao, decimal primeiroNumero, decimal segundoNumero) //entrada de dados
+        {
+            decimal resultado = 0;
+
+            if (opcao == "1")
+                resultado = primeiroNumero + segundoNumero;
+
+            else if (opcao == "2")
+                resultado = primeiroNumero - segundoNumero;
+
+            else if (opcao == "3")
+                resultado = primeiroNumero * segundoNumero;
+
+            else if (opcao == "4")
+                resultado = primeiroNumero / segundoNumero;
+
+            return resultado;
+        }       
+
+        //método
+        static void ApresentarMensagem(string mensagem, ConsoleColor cor)
+        {
+            Console.ForegroundColor = cor;
+            Console.WriteLine(mensagem); 
+            Console.ResetColor();
+            Console.ReadLine();            
+        }
+        #endregion
+
     }
 }
