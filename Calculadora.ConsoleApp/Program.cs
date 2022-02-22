@@ -40,6 +40,8 @@ namespace Calculadora.ConsoleApp
     {
         static void Main(string[] args)
         {
+
+
             string opcao;
 
             string[] historicoOperacoes = new string[10];
@@ -69,13 +71,15 @@ namespace Calculadora.ConsoleApp
 
                     continue;
                 }
-                
-                if (opcao == "s") //verifica se é pra sair
-                    break;                
 
-                historicoOperacoes[contadorOperacoes] = ExecutarCalculo(opcao);
+                if (opcao == "s") 
+                    break;
 
-                contadorOperacoes++;                
+                string operacaoRealizada = ExecutarCalculo(opcao);
+
+                RegistrarHistorico(historicoOperacoes, contadorOperacoes, operacaoRealizada);
+
+                contadorOperacoes++;
 
                 Console.ReadLine();
 
@@ -83,9 +87,12 @@ namespace Calculadora.ConsoleApp
             }
         }
 
-
-
         #region métodos
+
+        static void RegistrarHistorico(string[] historicoOperacoes, int contadorOperacoes, string operacaoRealizada)
+        {
+            historicoOperacoes[contadorOperacoes] = operacaoRealizada;
+        }
 
         static string ExecutarCalculo(string opcao)
         {
